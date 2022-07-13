@@ -1,2 +1,2 @@
-node ../../ucdmin/entry.js
-acompc -o=output/CharCategory.swc --include-sources=.
+node ../../data/entry.js
+acompc -o=output/unicode-general-category.swc --include-sources=.

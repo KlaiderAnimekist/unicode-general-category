@@ -11,8 +11,7 @@ fileStream.open(new File(__dirname).resolvePath('generatedSP.bin'), 'read')
 fileStream.readBytes(SP)
 fileStream.close()
 
-const UnicodeCategory =
-{
+const GeneralCategory = {
     CONTROL_OTHER             : 0x00, // Cc
     FORMAT_OTHER              : 0x01, // Cf
     PRIVATE_USE_OTHER         : 0x02, // Co
@@ -51,12 +50,12 @@ const UnicodeCategory =
     SPACE_SEPARATOR           : 0x40 + 16, // Zs
 }
 
-UnicodeCategory.fromString = function(s)
+GeneralCategory.fromString = function(s)
 {
     return this.from(s.codePointAt(0))
 }
 
-UnicodeCategory.from = function(cp)
+GeneralCategory.from = function(cp)
 {
     if (cp >> 16 !== 0)
         return this.SPAgainst(cp, 0)
@@ -78,12 +77,12 @@ UnicodeCategory.from = function(cp)
     }
 }
 
-UnicodeCategory.isLetter = function(gc)
+GeneralCategory.isLetter = function(gc)
 {
     return gc >> 4 === 1
 }
 
-UnicodeCategory.BMPAgainst = function(cp, start)
+GeneralCategory.BMPAgainst = function(cp, start)
 {
     var i = 0
     var lead = 0
@@ -110,7 +109,7 @@ UnicodeCategory.BMPAgainst = function(cp, start)
     return this.NOT_ASSIGNED_OTHER
 }
 
-UnicodeCategory.SPAgainst = function(cp, start)
+GeneralCategory.SPAgainst = function(cp, start)
 {
     var i = 0
     var lead = 0
@@ -137,10 +136,10 @@ UnicodeCategory.SPAgainst = function(cp, start)
     return this.NOT_ASSIGNED_OTHER
 }
 
-UnicodeCategory._readUint24 = function(ba, i)
+GeneralCategory._readUint24 = function(ba, i)
 {
     return ba.readUInt16LE(i)
         | (ba.readUInt8(i) << 16)
 }
 
-global.UnicodeCategory = UnicodeCategory
+global.GeneralCategory = GeneralCategory

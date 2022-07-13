@@ -1,11 +1,9 @@
-package com.recoyx.util
-{
+package com.klaideranimekist.unicode {
     import flash.utils.ByteArray;
     import flash.utils.Dictionary;
     import flash.utils.Endian;
 
-    public final class CharCategory
-    {
+    public final class GeneralCategory {
         [Embed(
             source = '../../../../../../data/output/generatedBMP.bin',
             mimeType = 'application/octet-stream'
@@ -25,41 +23,41 @@ package com.recoyx.util
         private var _value:uint;
         static private var _categories:Dictionary = new Dictionary;
 
-        static public const CONTROL_OTHER:CharCategory = new CharCategory(0x00); // Cc
-        static public const FORMAT_OTHER:CharCategory = new CharCategory(0x01); // Cf
-        static public const PRIVATE_USE_OTHER:CharCategory = new CharCategory(0x02); // Co
-        static public const SURROGATE_OTHER:CharCategory = new CharCategory(0x03); // Cs
-        static public const NOT_ASSIGNED_OTHER:CharCategory = new CharCategory(0x04); // Cn
+        static public const CONTROL_OTHER:GeneralCategory = new GeneralCategory(0x00); // Cc
+        static public const FORMAT_OTHER:GeneralCategory = new GeneralCategory(0x01); // Cf
+        static public const PRIVATE_USE_OTHER:GeneralCategory = new GeneralCategory(0x02); // Co
+        static public const SURROGATE_OTHER:GeneralCategory = new GeneralCategory(0x03); // Cs
+        static public const NOT_ASSIGNED_OTHER:GeneralCategory = new GeneralCategory(0x04); // Cn
 
-        static public const LOWERCASE_LETTER:CharCategory = new CharCategory(0x10);     // Ll
-        static public const MODIFIER_LETTER:CharCategory = new CharCategory(0x10 + 1); // Lm
-        static public const OTHER_LETTER:CharCategory = new CharCategory(0x10 + 2); // Lo
-        static public const TITLECASE_LETTER:CharCategory = new CharCategory(0x10 + 3); // Lt
-        static public const UPPERCASE_LETTER:CharCategory = new CharCategory(0x10 + 4);  // Lu
+        static public const LOWERCASE_LETTER:GeneralCategory = new GeneralCategory(0x10);     // Ll
+        static public const MODIFIER_LETTER:GeneralCategory = new GeneralCategory(0x10 + 1); // Lm
+        static public const OTHER_LETTER:GeneralCategory = new GeneralCategory(0x10 + 2); // Lo
+        static public const TITLECASE_LETTER:GeneralCategory = new GeneralCategory(0x10 + 3); // Lt
+        static public const UPPERCASE_LETTER:GeneralCategory = new GeneralCategory(0x10 + 4);  // Lu
 
-        static public const COMBINING_SPACING_MARK:CharCategory = new CharCategory(0x20); // Mc
-        static public const ENCLOSING_MARK:CharCategory = new CharCategory(0x20 + 1); // Me
-        static public const NON_SPACING_MARK:CharCategory = new CharCategory(0x20 + 2); // Mn
+        static public const COMBINING_SPACING_MARK:GeneralCategory = new GeneralCategory(0x20); // Mc
+        static public const ENCLOSING_MARK:GeneralCategory = new GeneralCategory(0x20 + 1); // Me
+        static public const NON_SPACING_MARK:GeneralCategory = new GeneralCategory(0x20 + 2); // Mn
 
-        static public const DECIMAL_NUMBER:CharCategory = new CharCategory(0x40); // Nd
-        static public const LETTER_NUMBER:CharCategory = new CharCategory(0x40 + 1); // Nl
-        static public const OTHER_NUMBER:CharCategory = new CharCategory(0x40 + 2); // No
-        static public const CONNECTOR_PUNCTUATION:CharCategory = new CharCategory(0x40 + 3); // Pc
-        static public const DASH_PUNCTUATION:CharCategory = new CharCategory(0x40 + 4); // Pd
-        static public const OPEN_PUNCTUATION:CharCategory = new CharCategory(0x40 + 5); // Ps
-        static public const CLOSE_PUNCTUATION:CharCategory = new CharCategory(0x40 + 6); // Pe
-        static public const INITIAL_QUOTE_PUNCTUATION:CharCategory = new CharCategory(0x40 + 7); // Pi
-        static public const FINAL_QUOTE_PUNCTUATION:CharCategory = new CharCategory(0x40 + 8); // Pf
-        static public const OTHER_PUNCTUATION:CharCategory = new CharCategory(0x40 + 9); // Po
-        static public const CURRENCY_SYMBOL:CharCategory = new CharCategory(0x40 + 10); // Sc
-        static public const MODIFIER_SYMBOL:CharCategory = new CharCategory(0x40 + 11); // Sk
-        static public const MATH_SYMBOL:CharCategory = new CharCategory(0x40 + 12); // Sm
-        static public const OTHER_SYMBOL:CharCategory = new CharCategory(0x40 + 13); // So
-        static public const LINE_SEPARATOR:CharCategory = new CharCategory(0x40 + 14); // Zl
-        static public const PARAGRAPH_SEPARATOR:CharCategory = new CharCategory(0x40 + 15); // Zp
-        static public const SPACE_SEPARATOR:CharCategory = new CharCategory(0x40 + 16); // Zs
+        static public const DECIMAL_NUMBER:GeneralCategory = new GeneralCategory(0x40); // Nd
+        static public const LETTER_NUMBER:GeneralCategory = new GeneralCategory(0x40 + 1); // Nl
+        static public const OTHER_NUMBER:GeneralCategory = new GeneralCategory(0x40 + 2); // No
+        static public const CONNECTOR_PUNCTUATION:GeneralCategory = new GeneralCategory(0x40 + 3); // Pc
+        static public const DASH_PUNCTUATION:GeneralCategory = new GeneralCategory(0x40 + 4); // Pd
+        static public const OPEN_PUNCTUATION:GeneralCategory = new GeneralCategory(0x40 + 5); // Ps
+        static public const CLOSE_PUNCTUATION:GeneralCategory = new GeneralCategory(0x40 + 6); // Pe
+        static public const INITIAL_QUOTE_PUNCTUATION:GeneralCategory = new GeneralCategory(0x40 + 7); // Pi
+        static public const FINAL_QUOTE_PUNCTUATION:GeneralCategory = new GeneralCategory(0x40 + 8); // Pf
+        static public const OTHER_PUNCTUATION:GeneralCategory = new GeneralCategory(0x40 + 9); // Po
+        static public const CURRENCY_SYMBOL:GeneralCategory = new GeneralCategory(0x40 + 10); // Sc
+        static public const MODIFIER_SYMBOL:GeneralCategory = new GeneralCategory(0x40 + 11); // Sk
+        static public const MATH_SYMBOL:GeneralCategory = new GeneralCategory(0x40 + 12); // Sm
+        static public const OTHER_SYMBOL:GeneralCategory = new GeneralCategory(0x40 + 13); // So
+        static public const LINE_SEPARATOR:GeneralCategory = new GeneralCategory(0x40 + 14); // Zl
+        static public const PARAGRAPH_SEPARATOR:GeneralCategory = new GeneralCategory(0x40 + 15); // Zp
+        static public const SPACE_SEPARATOR:GeneralCategory = new GeneralCategory(0x40 + 16); // Zs
 
-        static public function fromCharCode(ch:uint):CharCategory {
+        static public function fromCharCode(ch:uint):GeneralCategory {
             var cp:uint = ch;
             if (cp >> 16 !== 0)
                 return smpPlaneAgainst(cp, 0);
@@ -80,7 +78,7 @@ package com.recoyx.util
             }
         }
 
-        public function CharCategory(value:uint)
+        public function GeneralCategory(value:uint)
         {
             this._value = value;
             _categories[value] = this;
@@ -126,7 +124,7 @@ package com.recoyx.util
             return this.valueOf() >> 6 === 1 && this.valueOf() > OTHER_SYMBOL.valueOf();
         }
 
-        static private function bmpPlaneAgainst(cp:uint, start:uint):CharCategory
+        static private function bmpPlaneAgainst(cp:uint, start:uint):GeneralCategory
         {
             bmpPlane.position = start
             var lead:uint
@@ -147,7 +145,7 @@ package com.recoyx.util
             return NOT_ASSIGNED_OTHER
         }
 
-        static private function smpPlaneAgainst(cp:uint, start:uint):CharCategory {
+        static private function smpPlaneAgainst(cp:uint, start:uint):GeneralCategory {
             smpPlane.position = start
             var lead:uint
             while (smpPlane.position !== smpPlane.length) {
