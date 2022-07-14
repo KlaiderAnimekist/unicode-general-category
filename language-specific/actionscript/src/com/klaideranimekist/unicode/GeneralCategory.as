@@ -5,7 +5,7 @@ package com.klaideranimekist.unicode {
 
     public final class GeneralCategory {
         [Embed(
-            source = '../../../../../../data/output/generatedBMP.bin',
+            source = '../../../../../../data/output/bmp.bin',
             mimeType = 'application/octet-stream'
         )]
         static private const bmpPlaneClass:Class;
@@ -13,7 +13,7 @@ package com.klaideranimekist.unicode {
         bmpPlane.endian = Endian.LITTLE_ENDIAN;
 
         [Embed(
-            source = '../../../../../../data/output/generatedSP.bin',
+            source = '../../../../../../data/output/smp.bin',
             mimeType = 'application/octet-stream'
         )]
         static private const smpPlaneClass:Class;
@@ -60,21 +60,19 @@ package com.klaideranimekist.unicode {
         static public function fromCharCode(ch:uint):GeneralCategory {
             var cp:uint = ch;
             if (cp >> 16 !== 0)
-                return smpPlaneAgainst(cp, 0);
+                return smpPlaneAgainst(cp);
             else {
-                const start:uint =
-                    ! ( cp >> 8 )                           ? 0   :
-                      ( cp < 0x376   && cp >= 0x100 )       ? 218 :
-                      ( cp < 0x800   && cp >= 0x376 )       ? 1219 :
-                      ( cp < 0x1000  && cp >= 0x800 )       ? 2323 :
-                      ( cp < 0x2016  && cp >= 0x1000 )      ? 3643 :
-                      ( cp < 0x3000  && cp >= 0x2016 )      ? 5688 :
-                      ( cp < 0x4E00  && cp >= 0x3000 )      ? 7166 :
-                      ( cp < 0xA000  && cp >= 0x4E00 )      ? 7452 :
-                      ( cp < 0xAC00  && cp >= 0xA000 )      ? 7458 :
-                      ( cp < 0xF900  && cp >= 0xAC00 )      ? 8790 : 8827;
-
-                return bmpPlaneAgainst(cp, start);
+                if (!(cp >> 8)) return bmpPlaneAgainst(cp, 0, 0);
+                if (cp < 0x376 && cp >= 0x100) return bmpPlaneAgainst(cp, 180, 0x100);
+                if (cp < 0x800 && cp >= 0x376) return bmpPlaneAgainst(cp, 1101, 0x376);
+                if (cp < 0x1000 && cp >= 0x800) return bmpPlaneAgainst(cp, 2130, 0x800);
+                if (cp < 0x2016 && cp >= 0x1000) return bmpPlaneAgainst(cp, 3483, 0x1000);
+                if (cp < 0x3000 && cp >= 0x2016) return bmpPlaneAgainst(cp, 5343, 0x2016);
+                if (cp < 0x4E00 && cp >= 0x3000) return bmpPlaneAgainst(cp, 6651, 0x3000);
+                if (cp < 0xA000 && cp >= 0x4E00) return bmpPlaneAgainst(cp, 6900, 0x4E00);
+                if (cp < 0xAC00 && cp >= 0xA000) return bmpPlaneAgainst(cp, 6909, 0xA000);
+                if (cp < 0xF900 && cp >= 0xAC00) return bmpPlaneAgainst(cp, 8100, 0xAC00);
+                return bmpPlaneAgainst(cp, 8154, 0xF900);
             }
         }
 
@@ -124,39 +122,27 @@ package com.klaideranimekist.unicode {
             return this.valueOf() >> 6 === 1 && this.valueOf() > OTHER_SYMBOL.valueOf();
         }
 
-        static private function bmpPlaneAgainst(cp:uint, start:uint):GeneralCategory
+        static private function bmpPlaneAgainst(cp:uint, start:uint, startCp:uint):GeneralCategory
         {
             bmpPlane.position = start
-            var lead:uint
+            var cat:uint, cp2:uint = startCp
             while (bmpPlane.position !== bmpPlane.length)
             {
-                lead = bmpPlane.readUnsignedByte()
-                if (lead >> 7 === 1)
-                {
-                    lead &= 0x7F
-                    if (cp === bmpPlane.readUnsignedShort()) return _categories[lead]
-                }
-                else
-                {
-                    if (cp <  bmpPlane.readUnsignedShort()) break 
-                    if (cp <= bmpPlane.readUnsignedShort()) return _categories[lead]
-                }
+                cat = bmpPlane.readUnsignedByte()
+                cp2 += bmpPlane.readUnsignedShort()
+                if (cp < cp2) return _categories[cat];
             }
             return NOT_ASSIGNED_OTHER
         }
 
-        static private function smpPlaneAgainst(cp:uint, start:uint):GeneralCategory {
-            smpPlane.position = start
-            var lead:uint
-            while (smpPlane.position !== smpPlane.length) {
-                lead = smpPlane.readUnsignedByte()
-                if (lead >> 7 === 1) {
-                    lead &= 0x7F
-                    if (cp === readUint24(smpPlane)) return _categories[lead]
-                } else {
-                    if (cp <  readUint24(smpPlane)) break
-                    if (cp <= readUint24(smpPlane)) return _categories[lead]
-                }
+        static private function smpPlaneAgainst(cp:uint):GeneralCategory {
+            smpPlane.position = 0
+            var cat:uint, cp2:uint = 0x10000
+            while (smpPlane.position !== smpPlane.length)
+            {
+                cat = smpPlane.readUnsignedByte()
+                cp2 += readUint24(smpPlane)
+                if (cp < cp2) return _categories[cat];
             }
             return NOT_ASSIGNED_OTHER
         }

@@ -1,15 +1,8 @@
-const {File,FileStream} = nodejs.filesystem
+const fs = require('fs')
+    , path = require('path');
 
-const BMP = new ByteArray
-    , SP  = new ByteArray
-
-var fileStream = new FileStream
-fileStream.open(new File(__dirname).resolvePath('generatedBMP.bin'), 'read')
-fileStream.readBytes(BMP)
-
-fileStream.open(new File(__dirname).resolvePath('generatedSP.bin'), 'read')
-fileStream.readBytes(SP)
-fileStream.close()
+const BMP = fs.readFileSync(path.resolve(__dirname, '../../data/output/bmp.bin'))
+    , SP  = fs.readFileSync(path.resolve(__dirname, '../../data/output/smp.bin'))
 
 const GeneralCategory = {
     CONTROL_OTHER             : 0x00, // Cc
@@ -58,22 +51,20 @@ GeneralCategory.fromString = function(s)
 GeneralCategory.from = function(cp)
 {
     if (cp >> 16 !== 0)
-        return this.SPAgainst(cp, 0)
+        return this.spPlaneAgainst(cp)
     else
     {
-        const start =
-            ! ( cp >> 8 )                           ? 0   :
-              ( cp < 0x376   && cp >= 0x100 )       ? 218 :
-              ( cp < 0x800   && cp >= 0x376 )       ? 1219 :
-              ( cp < 0x1000  && cp >= 0x800 )       ? 2323 :
-              ( cp < 0x2016  && cp >= 0x1000 )      ? 3643 :
-              ( cp < 0x3000  && cp >= 0x2016 )      ? 5688 :
-              ( cp < 0x4E00  && cp >= 0x3000 )      ? 7166 :
-              ( cp < 0xA000  && cp >= 0x4E00 )      ? 7452 :
-              ( cp < 0xAC00  && cp >= 0xA000 )      ? 7458 :
-              ( cp < 0xF900  && cp >= 0xAC00 )      ? 8790 : 8827
-
-        return this.BMPAgainst(cp, start)
+        if (!(cp >> 8)) return this.bmpPlaneAgainst(cp, 0, 0);
+        if (cp < 0x376 && cp >= 0x100) return this.bmpPlaneAgainst(cp, 180, 0x100);
+        if (cp < 0x800 && cp >= 0x376) return this.bmpPlaneAgainst(cp, 1101, 0x376);
+        if (cp < 0x1000 && cp >= 0x800) return this.bmpPlaneAgainst(cp, 2130, 0x800);
+        if (cp < 0x2016 && cp >= 0x1000) return this.bmpPlaneAgainst(cp, 3483, 0x1000);
+        if (cp < 0x3000 && cp >= 0x2016) return this.bmpPlaneAgainst(cp, 5343, 0x2016);
+        if (cp < 0x4E00 && cp >= 0x3000) return this.bmpPlaneAgainst(cp, 6651, 0x3000);
+        if (cp < 0xA000 && cp >= 0x4E00) return this.bmpPlaneAgainst(cp, 6900, 0x4E00);
+        if (cp < 0xAC00 && cp >= 0xA000) return this.bmpPlaneAgainst(cp, 6909, 0xA000);
+        if (cp < 0xF900 && cp >= 0xAC00) return this.bmpPlaneAgainst(cp, 8100, 0xAC00);
+        return this.bmpPlaneAgainst(cp, 8154, 0xF900);
     }
 }
 
@@ -82,64 +73,34 @@ GeneralCategory.isLetter = function(gc)
     return gc >> 4 === 1
 }
 
-GeneralCategory.BMPAgainst = function(cp, start)
+GeneralCategory.bmpPlaneAgainst = function(cp, start, startCp)
 {
-    var i = 0
-    var lead = 0
-    while (i < BMP.length)
-    {
-        lead = BMP.readUInt8(i++)
-        if (lead >> 7 === 1)
-        {
-            lead &= 0x7F
-            if (cp === BMP.readUInt16LE(i))
-                return lead
-            i += 2
-        }
-        else
-        {
-            if (cp <  BMP.readUInt16LE(i))
-                break
-            i += 2
-            if (cp <= BMP.readUInt16LE(i))
-                return lead
-            i += 2
-        }
+    let i = start, cat = 0, cp2 = startCp
+    while (i != BMP.length) {
+        cat = BMP.readUInt8(i++)
+        cp2 += BMP.readUInt16LE(i)
+        i += 2
+        if (cp < cp2) return cat;
     }
     return this.NOT_ASSIGNED_OTHER
 }
 
-GeneralCategory.SPAgainst = function(cp, start)
+GeneralCategory.spPlaneAgainst = function(cp)
 {
-    var i = 0
-    var lead = 0
-    while (i < SP.length)
-    {
-        lead = SP.readUInt8(i++)
-        if (lead >> 7 === 1)
-        {
-            lead &= 0x7F
-            if (cp === this._readUint24(SP, i))
-                return lead
-            i += 3
-        }
-        else
-        {
-            if (cp <  this._readUint24(SP, i))
-                break
-            i += 3
-            if (cp <= this._readUint24(SP, i))
-                return lead
-            i += 3
-        }
+    let i = 0, cat = 0, cp2 = 0x10000
+    while (i != SP.length) {
+        cat = SP.readUInt8(i++)
+        cp2 += this._readUInt24LE(SP, i)
+        i += 3
+        if (cp < cp2) return cat;
     }
     return this.NOT_ASSIGNED_OTHER
 }
 
-GeneralCategory._readUint24 = function(ba, i)
+GeneralCategory._readUInt24LE = function(ba, i)
 {
     return ba.readUInt16LE(i)
         | (ba.readUInt8(i) << 16)
 }
 
-global.GeneralCategory = GeneralCategory
+module.exports = GeneralCategory
