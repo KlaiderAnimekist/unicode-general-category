@@ -12,95 +12,127 @@ for (let s of bmpCheckpointsText.split('\n')) {
     bmpCheckpoints.push(cp, i);
 }
 
-const GeneralCategory = {
-    CONTROL_OTHER             : 0x00, // Cc
-    FORMAT_OTHER              : 0x01, // Cf
-    PRIVATE_USE_OTHER         : 0x02, // Co
-    SURROGATE_OTHER           : 0x03, // Cs
-    NOT_ASSIGNED_OTHER        : 0x04, // Cn
+class GeneralCategory {
+    static _byValue = new Map;
 
-    LOWERCASE_LETTER          : 0x10,     // Ll
-    MODIFIER_LETTER           : 0x10 + 1, // Lm
-    OTHER_LETTER              : 0x10 + 2, // Lo
-    TITLECASE_LETTER          : 0x10 + 3, // Lt
-    UPPERCASE_LETTER          : 0x10 + 4, // Lu
+    static CONTROL_OTHER             = new GeneralCategory(0x00, 'Cc');
+    static FORMAT_OTHER              = new GeneralCategory(0x01, 'Cf');
+    static PRIVATE_USE_OTHER         = new GeneralCategory(0x02, 'Co');
+    static SURROGATE_OTHER           = new GeneralCategory(0x03, 'Cs');
+    static NOT_ASSIGNED_OTHER        = new GeneralCategory(0x04, 'Cn');
 
-    COMBINING_SPACING_MARK    : 0x20,     // Mc
-    ENCLOSING_MARK            : 0x20 + 1, // Me
-    NON_SPACING_MARK          : 0x20 + 2, // Mn
+    static LOWERCASE_LETTER          = new GeneralCategory(0x10, 'Ll');
+    static MODIFIER_LETTER           = new GeneralCategory(0x10 + 1, 'Lm');
+    static OTHER_LETTER              = new GeneralCategory(0x10 + 2, 'Lo');
+    static TITLECASE_LETTER          = new GeneralCategory(0x10 + 3, 'Lt');
+    static UPPERCASE_LETTER          = new GeneralCategory(0x10 + 4, 'Lu');
 
-    DECIMAL_NUMBER            : 0x40,      // Nd
-    LETTER_NUMBER             : 0x40 + 1,  // Nl
-    OTHER_NUMBER              : 0x40 + 2,  // No
+    static COMBINING_SPACING_MARK    = new GeneralCategory(0x20, 'Mc');
+    static ENCLOSING_MARK            = new GeneralCategory(0x20 + 1, 'Me');
+    static NON_SPACING_MARK          = new GeneralCategory(0x20 + 2, 'Mn');
 
-    CONNECTOR_PUNCTUATION     : 0x40 + 3,  // Pc
-    DASH_PUNCTUATION          : 0x40 + 4,  // Pd
-    OPEN_PUNCTUATION          : 0x40 + 5,  // Ps
-    CLOSE_PUNCTUATION         : 0x40 + 6,  // Pe
-    INITIAL_QUOTE_PUNCTUATION : 0x40 + 7,  // Pi
-    FINAL_QUOTE_PUNCTUATION   : 0x40 + 8,  // Pf
-    OTHER_PUNCTUATION         : 0x40 + 9,  // Po
+    static DECIMAL_NUMBER            = new GeneralCategory(0x40, 'Nd');
+    static LETTER_NUMBER             = new GeneralCategory(0x40 + 1, 'Nl');
+    static OTHER_NUMBER              = new GeneralCategory(0x40 + 2, 'No');
 
-    CURRENCY_SYMBOL           : 0x40 + 10, // Sc
-    MODIFIER_SYMBOL           : 0x40 + 11, // Sk
-    MATH_SYMBOL               : 0x40 + 12, // Sm
-    OTHER_SYMBOL              : 0x40 + 13, // So
+    static CONNECTOR_PUNCTUATION     = new GeneralCategory(0x40 + 3, 'Pc');
+    static DASH_PUNCTUATION          = new GeneralCategory(0x40 + 4, 'Pd');
+    static OPEN_PUNCTUATION          = new GeneralCategory(0x40 + 5, 'Ps');
+    static CLOSE_PUNCTUATION         = new GeneralCategory(0x40 + 6, 'Pe');
+    static INITIAL_QUOTE_PUNCTUATION = new GeneralCategory(0x40 + 7, 'Pi');
+    static FINAL_QUOTE_PUNCTUATION   = new GeneralCategory(0x40 + 8, 'Pf');
+    static OTHER_PUNCTUATION         = new GeneralCategory(0x40 + 9, 'Po');
 
-    LINE_SEPARATOR            : 0x40 + 14, // Zl
-    PARAGRAPH_SEPARATOR       : 0x40 + 15, // Zp
-    SPACE_SEPARATOR           : 0x40 + 16, // Zs
-}
+    static CURRENCY_SYMBOL           = new GeneralCategory(0x40 + 10, 'Sc');
+    static MODIFIER_SYMBOL           = new GeneralCategory(0x40 + 11, 'Sk');
+    static MATH_SYMBOL               = new GeneralCategory(0x40 + 12, 'Sm');
+    static OTHER_SYMBOL              = new GeneralCategory(0x40 + 13, 'So');
 
-GeneralCategory.fromString = function(s)
-{
-    return this.from(s.codePointAt(0))
-}
+    static LINE_SEPARATOR            = new GeneralCategory(0x40 + 14, 'Zl');
+    static PARAGRAPH_SEPARATOR       = new GeneralCategory(0x40 + 15, 'Zp');
+    static SPACE_SEPARATOR           = new GeneralCategory(0x40 + 16, 'Zs');
 
-GeneralCategory.from = function(cp)
-{
-    if (cp >> 16 !== 0)
-        return this.spPlaneAgainst(cp)
-    else {
-        for (let i = 0; i < bmpCheckpoints.length - 2; i += 2)
-            if (cp >= bmpCheckpoints[i] && cp < bmpCheckpoints[i + 2])
-                return this.bmpPlaneAgainst(cp, bmpCheckpoints[i + 1], bmpCheckpoints[i]);
-        return this.bmpPlaneAgainst(cp, bmpCheckpoints[bmpCheckpoints.length - 1], bmpCheckpoints[bmpCheckpoints.length - 2]);
+    constructor(value, abbrev) {
+        this._value = value;
+        this._abbrev = abbrev;
+        GeneralCategory._byValue.set(this._value, this);
     }
-}
 
-GeneralCategory.isLetter = function(gc)
-{
-    return gc >> 4 === 1
-}
-
-GeneralCategory.bmpPlaneAgainst = function(cp, start, startCp)
-{
-    let i = start, cat = 0, cp2 = startCp
-    while (i != BMP.length) {
-        cat = BMP.readUInt8(i++)
-        cp2 += BMP.readUInt16LE(i)
-        i += 2
-        if (cp < cp2) return cat;
+    static from(cp) {
+        if (typeof cp == 'string') cp = cp.codePointAt(0);
+        if (cp >> 16 !== 0)
+            return GeneralCategory._smpAgainst(cp)
+        else {
+            let l = bmpCheckpoints.length - 2;
+            for (let i = 0; i < l; i += 2)
+                if (cp >= bmpCheckpoints[i] && cp < bmpCheckpoints[i + 2])
+                    return GeneralCategory._bmpAgainst(cp, bmpCheckpoints[i + 1], bmpCheckpoints[i]);
+            return GeneralCategory._bmpAgainst(cp, bmpCheckpoints[bmpCheckpoints.length - 1], bmpCheckpoints[bmpCheckpoints.length - 2]);
+        }
     }
-    return this.NOT_ASSIGNED_OTHER
-}
 
-GeneralCategory.spPlaneAgainst = function(cp)
-{
-    let i = 0, cat = 0, cp2 = 0x10000
-    while (i != SP.length) {
-        cat = SP.readUInt8(i++)
-        cp2 += this._readUInt24LE(SP, i)
-        i += 3
-        if (cp < cp2) return cat;
+    get isOther() {
+        return !(this._value >> 4);
     }
-    return this.NOT_ASSIGNED_OTHER
-}
 
-GeneralCategory._readUInt24LE = function(ba, i)
-{
-    return ba.readUInt16LE(i)
-        | (ba.readUInt8(i) << 16)
+    get isLetter() {
+        return this._value >> 4 === 1;
+    }
+
+    get isMark() {
+        return this._value >> 5 === 1;
+    }
+
+    get isNumber() {
+        return this.valueOf() >> 6 === 1 && this.valueOf() < GeneralCategory.CONNECTOR_PUNCTUATION.valueOf();
+    }
+
+    get isPunctuation() {
+        return this.valueOf() >> 6 === 1 && this.valueOf() > GeneralCategory.OTHER_NUMBER.valueOf() && this.valueOf() < GeneralCategory.CURRENCY_SYMBOL.valueOf();
+    }
+
+    get isSymbol() {
+        return this.valueOf() >> 6 === 1 && this.valueOf() > GeneralCategory.OTHER_PUNCTUATION.valueOf() && this.valueOf() < GeneralCategory.LINE_SEPARATOR.valueOf();
+    }
+
+    get isSeparator() {
+        return this.valueOf() >> 6 === 1 && this.valueOf() > GeneralCategory.OTHER_SYMBOL.valueOf();
+    }
+
+    static _bmpAgainst(cp, start, startCp) {
+        let i = start, cat = 0, cp2 = startCp
+        while (i != BMP.length) {
+            cat = BMP.readUInt8(i++)
+            cp2 += BMP.readUInt16LE(i)
+            i += 2
+            if (cp < cp2) return GeneralCategory._byValue.get(cat);
+        }
+        return GeneralCategory.NOT_ASSIGNED_OTHER
+    }
+
+    static _smpAgainst(cp) {
+        let i = 0, cat = 0, cp2 = 0x10000
+        while (i != SP.length) {
+            cat = SP.readUInt8(i++)
+            cp2 += GeneralCategory._readUInt24LE(SP, i)
+            i += 3
+            if (cp < cp2) return GeneralCategory._byValue.get(cat);
+        }
+        return GeneralCategory.NOT_ASSIGNED_OTHER
+    }
+
+    static _readUInt24LE(ba, i) {
+        return ba.readUInt16LE(i)
+            | (ba.readUInt8(i) << 16)
+    }
+
+    valueOf() {
+        return this._value;
+    }
+
+    toString() {
+        return this._abbrev;
+    }
 }
 
 module.exports = GeneralCategory

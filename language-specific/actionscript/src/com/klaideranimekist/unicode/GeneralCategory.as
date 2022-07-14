@@ -72,7 +72,8 @@ package com.klaideranimekist.unicode {
             if (cp >> 16 !== 0)
                 return smpPlaneAgainst(cp);
             else {
-                for (var i:uint = 0; i < bmpCheckpoints.length - 2; i += 2)
+                var l:uint = bmpCheckpoints.length - 2;
+                for (var i:uint = 0; i < l; i += 2)
                     if (cp >= bmpCheckpoints[i] && cp < bmpCheckpoints[i + 2])
                         return bmpPlaneAgainst(cp, bmpCheckpoints[i + 1], bmpCheckpoints[i]);
                 return bmpPlaneAgainst(cp, bmpCheckpoints[bmpCheckpoints.length - 1], bmpCheckpoints[bmpCheckpoints.length - 2]);
