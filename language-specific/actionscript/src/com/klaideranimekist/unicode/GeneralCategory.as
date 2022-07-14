@@ -20,6 +20,16 @@ package com.klaideranimekist.unicode {
         static private const smpPlane:ByteArray = new smpPlaneClass as ByteArray;
         smpPlane.endian = Endian.LITTLE_ENDIAN;
 
+        [Embed(
+            source = '../../../../../../data/output/bmp-checkpoints.txt',
+            mimeType = 'application/octet-stream'
+        )]
+        static private const bmpCheckpointsTextClass:Class;
+        static private const bmpCheckpointsText:String = (new bmpCheckpointsTextClass as ByteArray).toString();
+        static private const bmpCheckpoints:Vector.<uint> = new Vector.<uint>;
+        bmpCheckpoints.push(0, 0);
+        initBmpCheckpoints();
+
         private var _value:uint;
         static private var _categories:Dictionary = new Dictionary;
 
@@ -62,17 +72,18 @@ package com.klaideranimekist.unicode {
             if (cp >> 16 !== 0)
                 return smpPlaneAgainst(cp);
             else {
-                if (!(cp >> 8)) return bmpPlaneAgainst(cp, 0, 0);
-                if (cp < 0x376 && cp >= 0x100) return bmpPlaneAgainst(cp, 180, 0x100);
-                if (cp < 0x800 && cp >= 0x376) return bmpPlaneAgainst(cp, 1101, 0x376);
-                if (cp < 0x1000 && cp >= 0x800) return bmpPlaneAgainst(cp, 2130, 0x800);
-                if (cp < 0x2016 && cp >= 0x1000) return bmpPlaneAgainst(cp, 3483, 0x1000);
-                if (cp < 0x3000 && cp >= 0x2016) return bmpPlaneAgainst(cp, 5343, 0x2016);
-                if (cp < 0x4E00 && cp >= 0x3000) return bmpPlaneAgainst(cp, 6651, 0x3000);
-                if (cp < 0xA000 && cp >= 0x4E00) return bmpPlaneAgainst(cp, 6900, 0x4E00);
-                if (cp < 0xAC00 && cp >= 0xA000) return bmpPlaneAgainst(cp, 6909, 0xA000);
-                if (cp < 0xF900 && cp >= 0xAC00) return bmpPlaneAgainst(cp, 8100, 0xAC00);
-                return bmpPlaneAgainst(cp, 8154, 0xF900);
+                for (var i:uint = 0; i < bmpCheckpoints.length - 2; i += 2)
+                    if (cp >= bmpCheckpoints[i] && cp < bmpCheckpoints[i + 2])
+                        return bmpPlaneAgainst(cp, bmpCheckpoints[i + 1], bmpCheckpoints[i]);
+                return bmpPlaneAgainst(cp, bmpCheckpoints[bmpCheckpoints.length - 1], bmpCheckpoints[bmpCheckpoints.length - 2]);
+            }
+        }
+
+        static private function initBmpCheckpoints():void {
+            for each (var s:String in bmpCheckpointsText.split('\n')) {
+                var cp:uint = parseInt(s.match(/U\+([0-9a-f]+)/i)[1], 16);
+                var i:uint = parseInt(s.match(/addr ([0-9]+)/)[1]);
+                bmpCheckpoints.push(cp, i);
             }
         }
 

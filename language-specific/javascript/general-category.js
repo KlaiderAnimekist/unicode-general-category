@@ -4,6 +4,14 @@ const fs = require('fs')
 const BMP = fs.readFileSync(path.resolve(__dirname, '../../data/output/bmp.bin'))
     , SP  = fs.readFileSync(path.resolve(__dirname, '../../data/output/smp.bin'))
 
+const bmpCheckpointsText = fs.readFileSync(path.resolve(__dirname, '../../data/output/bmp-checkpoints.txt'), 'utf-8')
+    , bmpCheckpoints = [0, 0]
+for (let s of bmpCheckpointsText.split('\n')) {
+    let cp = parseInt(s.match(/U\+([0-9a-f]+)/i)[1], 16);
+    let i = parseInt(s.match(/addr ([0-9]+)/)[1]);
+    bmpCheckpoints.push(cp, i);
+}
+
 const GeneralCategory = {
     CONTROL_OTHER             : 0x00, // Cc
     FORMAT_OTHER              : 0x01, // Cf
@@ -52,19 +60,11 @@ GeneralCategory.from = function(cp)
 {
     if (cp >> 16 !== 0)
         return this.spPlaneAgainst(cp)
-    else
-    {
-        if (!(cp >> 8)) return this.bmpPlaneAgainst(cp, 0, 0);
-        if (cp < 0x376 && cp >= 0x100) return this.bmpPlaneAgainst(cp, 180, 0x100);
-        if (cp < 0x800 && cp >= 0x376) return this.bmpPlaneAgainst(cp, 1101, 0x376);
-        if (cp < 0x1000 && cp >= 0x800) return this.bmpPlaneAgainst(cp, 2130, 0x800);
-        if (cp < 0x2016 && cp >= 0x1000) return this.bmpPlaneAgainst(cp, 3483, 0x1000);
-        if (cp < 0x3000 && cp >= 0x2016) return this.bmpPlaneAgainst(cp, 5343, 0x2016);
-        if (cp < 0x4E00 && cp >= 0x3000) return this.bmpPlaneAgainst(cp, 6651, 0x3000);
-        if (cp < 0xA000 && cp >= 0x4E00) return this.bmpPlaneAgainst(cp, 6900, 0x4E00);
-        if (cp < 0xAC00 && cp >= 0xA000) return this.bmpPlaneAgainst(cp, 6909, 0xA000);
-        if (cp < 0xF900 && cp >= 0xAC00) return this.bmpPlaneAgainst(cp, 8100, 0xAC00);
-        return this.bmpPlaneAgainst(cp, 8154, 0xF900);
+    else {
+        for (let i = 0; i < bmpCheckpoints.length - 2; i += 2)
+            if (cp >= bmpCheckpoints[i] && cp < bmpCheckpoints[i + 2])
+                return this.bmpPlaneAgainst(cp, bmpCheckpoints[i + 1], bmpCheckpoints[i]);
+        return this.bmpPlaneAgainst(cp, bmpCheckpoints[bmpCheckpoints.length - 1], bmpCheckpoints[bmpCheckpoints.length - 2]);
     }
 }
 
