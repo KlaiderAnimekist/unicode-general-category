@@ -1,13 +1,14 @@
 const GeneralCategory = require('./general-category');
-// U+2015 must be Pd
-console.log('U+2015 =', GeneralCategory.from('\u{2015}').toString());
-// U+2016 must be Po
-console.log('U+2016 =', GeneralCategory.from('\u{2016}').toString());
-// U+10175 must be No
-console.log('U+10175 =', GeneralCategory.from('\u{10175}').toString());
-// U+082C must be Mn
-console.log('U+082C =', GeneralCategory.from('\u{82C}').toString());
-// U+0378 must be Cn
-console.log('U+0378 =', GeneralCategory.from('\u{378}').toString());
-// U+2010 must be Pd
-console.log('U+2010 =', GeneralCategory.from('\u{2010}').toString());
+const assert = require('assert');
+
+const samples = [
+    {codePoint: 0x2016,  category: 'Po'},
+    {codePoint: 0x10175, category: 'No'},
+    {codePoint: 0x082C,  category: 'Mn'},
+    {codePoint: 0x0378,  category: 'Cn'},
+    {codePoint: 0x2010,  category: 'Pd'},
+];
+for (let s of samples)
+    assert(GeneralCategory.from(s.codePoint).toString() == s.category);
+
+console.log('Test successful.');
