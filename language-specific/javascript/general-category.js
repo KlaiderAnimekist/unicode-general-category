@@ -63,6 +63,7 @@ class GeneralCategory {
         if (cp >> 16 !== 0)
             return GeneralCategory._smpAgainst(cp)
         else {
+            return GeneralCategory._bmpAgainst(cp, 0, 0);
             let l = bmpCheckpoints.length - 2;
             for (let i = 0; i < l; i += 2)
                 if (cp >= bmpCheckpoints[i] && cp < bmpCheckpoints[i + 2])
@@ -123,7 +124,7 @@ class GeneralCategory {
 
     static _readUInt24LE(ba, i) {
         return ba.readUInt16LE(i)
-            | (ba.readUInt8(i) << 16)
+            | (ba.readUInt8(i + 2) << 16)
     }
 
     valueOf() {

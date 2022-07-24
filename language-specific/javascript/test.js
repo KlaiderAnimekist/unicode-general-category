@@ -9,3 +9,5 @@ console.log('U+10175 =', GeneralCategory.from('\u{10175}').toString());
 console.log('U+082C =', GeneralCategory.from('\u{82C}').toString());
 // U+0378 must be Cn
 console.log('U+0378 =', GeneralCategory.from('\u{378}').toString());
+// U+2010 must be Pd
+console.log('U+2010 =', GeneralCategory.from('\u{2010}').toString());
