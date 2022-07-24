@@ -64,11 +64,13 @@ class GeneralCategory {
             return GeneralCategory._smpAgainst(cp)
         else {
             return GeneralCategory._bmpAgainst(cp, 0, 0);
+            /*
             let l = bmpCheckpoints.length - 2;
             for (let i = 0; i < l; i += 2)
                 if (cp >= bmpCheckpoints[i] && cp < bmpCheckpoints[i + 2])
                     return GeneralCategory._bmpAgainst(cp, bmpCheckpoints[i + 1], bmpCheckpoints[i]);
             return GeneralCategory._bmpAgainst(cp, bmpCheckpoints[bmpCheckpoints.length - 1], bmpCheckpoints[bmpCheckpoints.length - 2]);
+            */
         }
     }
 
