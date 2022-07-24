@@ -1,7 +1,7 @@
 const GeneralCategory = require('./general-category');
-const assert = require('assert');
 
 const samples = [
+    {codePoint: 0x0100,  category: 'Lu'},
     {codePoint: 0x2016,  category: 'Po'},
     {codePoint: 0x10175, category: 'No'},
     {codePoint: 0x082C,  category: 'Mn'},
@@ -9,6 +9,10 @@ const samples = [
     {codePoint: 0x2010,  category: 'Pd'},
 ];
 for (let s of samples)
-    assert(GeneralCategory.from(s.codePoint).toString() == s.category);
+    assertEqualCategory(s.codePoint, s.category);
 
+function assertEqualCategory(codePoint, category) {
+    if (GeneralCategory.from(codePoint).toString() != category)
+        throw new Error(`U+${codePoint.toString(16).toUpperCase()} is not of general category ${category}.`);
+}
 console.log('Test successful.');
