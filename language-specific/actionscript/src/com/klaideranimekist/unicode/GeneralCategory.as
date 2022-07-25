@@ -25,7 +25,7 @@ package com.klaideranimekist.unicode {
             mimeType = 'application/octet-stream'
         )]
         static private const bmpCheckpointsTextClass:Class;
-        static private const bmpCheckpointsText:String = (new bmpCheckpointsTextClass as ByteArray).toString();
+        static private const bmpCheckpointsText:String = ByteArray(new bmpCheckpointsTextClass).toString();
         static private const bmpCheckpoints:Vector.<uint> = new Vector.<uint>;
         bmpCheckpoints.push(0, 0);
         initBmpCheckpoints();
@@ -67,7 +67,7 @@ package com.klaideranimekist.unicode {
         static public const PARAGRAPH_SEPARATOR:GeneralCategory = new GeneralCategory(0x40 + 15); // Zp
         static public const SPACE_SEPARATOR:GeneralCategory = new GeneralCategory(0x40 + 16); // Zs
 
-        static public function fromCharCode(ch:uint):GeneralCategory {
+        static public function from(ch:uint):GeneralCategory {
             var cp:uint = ch;
             if (cp >> 16 !== 0)
                 return smpPlaneAgainst(cp);
