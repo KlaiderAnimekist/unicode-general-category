@@ -34,7 +34,7 @@ function bmpToBin() {
 
     for (;;) {
         // Add to `bmp-checkpoints.txt`
-        if (row.codePoint === checkCode) {
+        if (curCp === checkCode) {
             checks.push(i)
             checkCode = BMP_CHECKPOINTS[++checkIndex]
         }
