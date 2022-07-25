@@ -33,18 +33,18 @@ function bmpToBin() {
     scanner.next()
 
     for (;;) {
-        // Add to `bmp-checkpoints.txt`
-        if (curCp === checkCode) {
-            checks.push(i)
-            checkCode = BMP_CHECKPOINTS[++checkIndex]
-        }
-
         // Detect hole
         if (row.kind != Row.NONE && curCp != row.codePoint) {
             out.writeUInt8(GeneralCategory.NOT_ASSIGNED_OTHER, i++)
             out.writeUInt16LE(row.codePoint - curCp, i)
             curCp = row.codePoint
             i += 2
+        }
+
+        // Add to `bmp-checkpoints.txt`
+        if (curCp === checkCode) {
+            checks.push(i)
+            checkCode = BMP_CHECKPOINTS[++checkIndex]
         }
 
         if (row.kind === Row.SOLE) {
